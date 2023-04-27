@@ -1,0 +1,38 @@
+apt install freeradius freeradius-utils -y
+
+nano /etc/freeradius/client.conf
+	
+	client <client name> {
+	ipaddr = <ip_of_client>
+	secret = <password_of_radius>
+	require_message_authenticator = no 
+	nas_type = cisco 
+	}
+
+nano /etc/freeradius/users
+	
+	"<username>"	Cleartext-Password := "<password_of_client>"
+			Service-Type = NAS-Prompt-User,
+			Cisco-AVPair = "shell:priv-lvl=15"
+	}
+
+service radius start
+service radius enable
+
+firewall-cmd --add-port=1812/udp
+firewall-cmd --add-port=1813/udp
+
+	or
+service firewalld stop 
+
+switch --> 
+
+	username backup privilege 15 secret P@ssw0rd
+	
+	aaa new-model 
+	radius server MYRADIUS
+		address ipv4 <ip_of_server_radius> auth-port 1812 acc-port 1813
+		key <key_of_radius> 
+	aaa authentication login default group radius local 
+	aaa authorization exec default group radius local
+
